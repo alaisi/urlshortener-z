@@ -1,13 +1,13 @@
 # A url shortener service with z/OS COBOL and DB2
 
-<img src='https://github.com/alaisi/urlshortener-z/blob/master/edit.png?raw=true'/>
-
 ## Wait, what?
 
 This [fizzbuzz LOC-competition](https://grasswire-engineering.tumblr.com/post/94043813041/a-url-shortener-service-in-45-lines-of-scala) had just entries like 
 [Hashkell+Redis](https://bitemyapp.com/blog/url-shortener-in-haskell/) or 
 [Clojure+Redis](https://adambard.com/blog/a-clojure-url-shortener-service/) and 
 was obviously in a dire need for more esoteric solutions.
+
+<img src='https://github.com/alaisi/urlshortener-z/blob/master/edit.png?raw=true'/>
 
 ## Building
 
