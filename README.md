@@ -3,7 +3,7 @@
 ## Wait, what?
 
 This [fizzbuzz LOC-competition](https://grasswire-engineering.tumblr.com/post/94043813041/a-url-shortener-service-in-45-lines-of-scala) had just entries like 
-[Hashkell+Redis](https://bitemyapp.com/blog/url-shortener-in-haskell/) or 
+[Haskell+Redis](https://bitemyapp.com/blog/url-shortener-in-haskell/) or 
 [Clojure+Redis](https://adambard.com/blog/a-clojure-url-shortener-service/) and 
 was obviously in a dire need for more esoteric solutions.
 
@@ -16,7 +16,7 @@ to EBDCDIC and sent to z/OS with FTP. A JCL build job is then submitted to the J
 to run DB2 precompilation, COBOL compilation, linking a load
 module, creating database tables and binding DB2 query plans. The make 
 build also copies a cgi script to IBM HTTP Server cgi-bin in UNIX system services
-filesystem to enable invoking the load module HTTP.
+filesystem to enable invoking the load module over HTTP.
 
 ```shell
 $ make
