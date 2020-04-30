@@ -1,0 +1,125 @@
+//ZUSERB JOB ,,MSGLEVEL=1,NOTIFY=&SYSUID
+//*
+//* Step 1: Run DB2 precompiler to create plain cobol source
+//*         and DB2 request module
+//*
+//DB2PREC EXEC PGM=DSNHPC,PARM='HOST(IBMCOB),XREF,SOURCE,APOST'
+//STEPLIB DD DSN=DSN910.DB9G.SDSNEXIT,DISP=SHR
+//        DD DSN=DSN910.SDSNLOAD,DISP=SHR
+//DBRMLIB DD DSN=&SYSUID..URLSHORT.DBRM(URLSHOR2),DISP=SHR
+//SYSCIN DD DSNAME=&&PRECOMPL,UNIT=SYSALLDA,                          
+//          DISP=(MOD,PASS),SPACE=(TRK,(3,3)),                  
+//          DCB=(BLKSIZE=3200) 
+//SYSPRINT DD SYSOUT=*
+//SYSTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN DD DSN=&SYSUID..URLSHORT.SOURCE(URLSHOR2),DISP=SHR
+//SYSUT1   DD  SPACE=(800,(500,500),,,ROUND),
+//             UNIT=SYSDA
+//SYSUT2   DD  SPACE=(800,(500,500),,,ROUND),
+//             UNIT=SYSDA
+//DB2PREC2 EXEC PGM=DSNHPC,PARM='HOST(IBMCOB),XREF,SOURCE,APOST'
+//STEPLIB DD DSN=DSN910.DB9G.SDSNEXIT,DISP=SHR
+//        DD DSN=DSN910.SDSNLOAD,DISP=SHR
+//DBRMLIB DD DSN=&SYSUID..URLSHORT.DBRM(URLSHOR3),DISP=SHR
+//SYSCIN DD DSNAME=&&PRECOMP2,UNIT=SYSALLDA,                          
+//          DISP=(MOD,PASS),SPACE=(TRK,(3,3)),                  
+//          DCB=(BLKSIZE=3200) 
+//SYSPRINT DD SYSOUT=*
+//SYSTERM DD SYSOUT=*
+//SYSUDUMP DD SYSOUT=*
+//SYSIN DD DSN=&SYSUID..URLSHORT.SOURCE(URLSHOR3),DISP=SHR
+//SYSUT1   DD  SPACE=(800,(500,500),,,ROUND),
+//             UNIT=SYSDA
+//SYSUT2   DD  SPACE=(800,(500,500),,,ROUND),
+//             UNIT=SYSDA
+//*
+//* Step 2: Compile cobol source to object deck
+//*
+//COMPILE EXEC PGM=IGYCRCTL,REGION=2048K                            
+//STEPLIB  DD DSNAME=IGY410.SIGYCOMP,                          
+//            DISP=SHR                                            
+//SYSPRINT DD SYSOUT=*                                            
+//SYSLIN   DD DSNAME=&&LOADSET,UNIT=SYSALLDA,                          
+//            DISP=(MOD,PASS),SPACE=(TRK,(3,3)),                  
+//            DCB=(BLKSIZE=3200)                              
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT2   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT3   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT4   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT5   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT6   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))                          
+//SYSUT7   DD UNIT=SYSALLDA,SPACE=(CYL,(1,1))
+//COBOL.SYSIN DD DSN=&SYSUID..URLSHORT.SOURCE(URLSHOR1),DISP=SHR
+//            DD DSN=&&PRECOMPL,DISP=(OLD,DELETE)
+//            DD DSN=&&PRECOMP2,DISP=(OLD,DELETE)
+//*
+//* Step 3: Link object deck with DB2 libs to a load module
+//*
+//LINK EXEC PGM=HEWL,COND=(8,LT,COMPILE),REGION=1024K              
+//SYSLIB   DD DSNAME=CEE.SCEELKED,DISP=SHR  
+//         DD DSN=DSN910.SDSNLOAD,DISP=SHR
+//SYSPRINT DD SYSOUT=*                                            
+//SYSLIN   DD DSNAME=&&LOADSET,DISP=(OLD,DELETE)
+//         DD DDNAME=SYSIN                       
+//SYSLMOD  DD DSNAME=&SYSUID..URLSHORT.LOAD(URLSHORT),DISP=SHR           
+//SYSUT1   DD UNIT=SYSALLDA,SPACE=(TRK,(10,10))
+//*
+//* Step 4: Create DB schema
+//*
+//MIGRATE EXEC PGM=IKJEFT01,DYNAMNBR=20
+//STEPLIB DD DSN=DSN910.DB9G.SDSNEXIT,DISP=SHR
+//        DD DSN=DSN910.SDSNLOAD,DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//SYSTSPRT DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD  *
+DSN SYSTEM (DB9G    )
+    RUN PROGRAM(DSNTEP2) PLAN(DSNTEP2) -
+    LIB('DSN910.DB9G.RUNLIB.LOAD')
+END
+/*
+//SYSIN DD *
+CREATE SEQUENCE LINK_ID_SEQ;
+CREATE TABLE LINKS (
+  ID BIGINT NOT NULL PRIMARY KEY,
+  URL VARCHAR(1024) NOT NULL
+);
+/*
+//*
+//* Step 5: Bind DB2 query plans to load module to create
+//*         a TSO program
+//*
+//DB2BIND EXEC PGM=IKJEFT01,DYNAMNBR=20
+//STEPLIB DD DSN=DSN910.DB9G.SDSNEXIT,DISP=SHR
+//        DD DSN=DSN910.SDSNLOAD,DISP=SHR
+//DBRMLIB  DD DSN=&SYSUID..URLSHORT.DBRM(URLSHOR2),DISP=SHR
+//         DD DSN=&SYSUID..URLSHORT.DBRM(URLSHOR3),DISP=SHR
+//SYSPRINT DD  SYSOUT=*
+//SYSTSPRT DD  SYSOUT=*
+//SYSUDUMP DD  SYSOUT=*
+//SYSTSIN  DD  *
+DSN SYSTEM (DB9G    )                                                       
+BIND  PACKAGE   (URLSHOR2) -
+      MEMBER    (URLSHOR2) -
+      LIBRARY   ('ZUSER.URLSHORT.DBRM') -
+      ACTION    (REP) -
+      ISOLATION (CS) -
+      VALIDATE  (BIND) -
+      RELEASE   (COMMIT) -
+      OWNER     (ZUSER) -
+      ENCODING  (1140) -
+      QUALIFIER (ZUSER)
+BIND  PACKAGE   (URLSHOR3) -
+      MEMBER    (URLSHOR3) -
+      LIBRARY   ('ZUSER.URLSHORT.DBRM') -
+      ACTION    (REP) -
+      ISOLATION (CS) -
+      VALIDATE  (BIND) -
+      RELEASE   (COMMIT) -
+      OWNER     (ZUSER) -
+      ENCODING  (1140) -
+      QUALIFIER (ZUSER)
+BIND PLAN (URLSHORT) PKLIST (URLSHOR2.*, URLSHOR3.*)
+END
+/*
